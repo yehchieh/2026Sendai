@@ -1486,35 +1486,40 @@ const MY_PHOTOS = {
 // Each entry: string = Japanese Wikipedia title,
 // or array of [lang, title] pairs tried in order
 const WIKI_IMG = {
-  'd0-1': [['ja','浅草寺'],        ['en','Sensō-ji']],
+  'd0-1': [['ja','浅草寺'],        ['en','Senso-ji']],
   'd0-4': [['ja','六本木ヒルズ'],   ['en','Roppongi Hills']],
-  'd0-6': [['ja','牛タン'],         ['en','Gyūtan']],
-  'd1-3': [['ja','鬼首スキー場'],   ['en','Naruko-Onsenkyo']],
-  'd1-4': [['ja','鬼首温泉'],       ['en','Naruko Onsen']],
-  'd2-0': [['ja','鬼首スキー場'],   ['en','Naruko-Onsenkyo']],
-  'd3-3': [['ja','A-FACTORY'],      ['en','A-Factory, Aomori']],
-  'd3-4': [['ja','ねぶたの家ワ・ラッセ'], ['en','Warasse']],
-  'd3-5': [['ja','広田神社_(青森市)'], ['en','Hirota Shrine']],
-  'd4-1': [['ja','最勝院_(弘前市)'],  ['en','Saisho-in']],
-  'd4-2': [['ja','仲町伝統的建造物群保存地区_(弘前市)'], ['en','Hirosaki']],
-  'd5-1': [['ja','弘前城'],          ['en','Hirosaki Castle']],
-  'd5-2': [['ja','弘前れんが倉庫美術館'], ['en','Hirosaki Museum of Contemporary Art']],
-  'd5-3': [['ja','藤田記念庭園_(弘前市)'], ['en','Fujita Memorial Japanese Garden']],
-  'd6-0': [['ja','弘前城'],          ['en','Hirosaki Castle']],
-  'd6-1': [['ja','広田神社_(青森市)'], ['en','Hirota Shrine']],
-  'd6-2': [['ja','青森県立美術館'],   ['en','Aomori Museum of Art']],
+  'd0-6': [['ja','牛タン'],         ['en','Sendai']],
+  'd1-3': [['ja','鳴子温泉郷'],     ['en','Naruko Onsen']],
+  'd1-4': [['ja','鳴子温泉郷'],     ['en','Naruko Onsen']],
+  'd2-0': [['ja','鳴子温泉郷'],     ['en','Naruko Onsen']],
+  'd3-3': [['ja','青森市'],         ['en','Aomori']],
+  'd3-4': [['ja','青森ねぶた祭'],   ['en','Nebuta Festival']],
+  'd3-5': [['ja','青森市'],         ['en','Aomori']],
+  'd4-1': [['ja','最勝院'],         ['en','Hirosaki']],
+  'd4-2': [['ja','弘前市'],         ['en','Hirosaki']],
+  'd5-1': [['ja','弘前城'],         ['en','Hirosaki Castle']],
+  'd5-2': [['ja','弘前市'],         ['en','Hirosaki']],
+  'd5-3': [['ja','弘前公園'],       ['en','Hirosaki Castle']],
+  'd6-0': [['ja','弘前城'],         ['en','Hirosaki Castle']],
+  'd6-1': [['ja','青森市'],         ['en','Aomori']],
+  'd6-2': [['ja','青森県立美術館'], ['en','Aomori Museum of Art']],
 };
 
 async function fetchWikiThumb(lang, title) {
-  const url = `https://${lang}.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(title)}&prop=pageimages&format=json&pithumbsize=640&origin=*`;
+  const url = `https://${lang}.wikipedia.org/w/api.php?action=query` +
+    `&titles=${encodeURIComponent(title)}` +
+    `&prop=pageimages&piprop=thumbnail&pithumbsize=640` +
+    `&format=json&origin=*`;
   const res = await fetch(url);
-  if (!res.ok) throw new Error();
+  if (!res.ok) throw new Error('http ' + res.status);
   const d = await res.json();
   const pages = d.query && d.query.pages;
-  if (!pages) throw new Error();
-  const page = pages[Object.keys(pages)[0]];
+  if (!pages) throw new Error('no pages');
+  const pageId = Object.keys(pages)[0];
+  if (pageId === '-1') throw new Error('not found');
+  const page = pages[pageId];
   if (page && page.thumbnail && page.thumbnail.source) return page.thumbnail.source;
-  throw new Error('no thumb');
+  throw new Error('no thumbnail');
 }
 
 async function loadCardImage(cardId) {
