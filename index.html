@@ -1493,21 +1493,34 @@ async function loadCardImage(cardId) {
 
   const imgDiv = document.createElement('div');
   imgDiv.className = 'tl-card-img';
-  imgDiv.innerHTML = '<div class="tl-img-ph">🔍</div>';
+  const ph = document.createElement('div');
+  ph.className = 'tl-img-ph';
+  ph.textContent = '⏳';
+  imgDiv.appendChild(ph);
   body.insertBefore(imgDiv, body.firstChild);
 
   try {
     const res = await fetch(
       `https://ja.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`
     );
-    if (!res.ok) throw new Error();
+    if (!res.ok) throw new Error('fetch failed');
     const d = await res.json();
     if (d.thumbnail && d.thumbnail.source) {
       const src = d.thumbnail.source.replace(/\/\d+px-/, '/640px-');
-      const caption = d.displaytitle || title;
-      imgDiv.innerHTML =
-        `<img src="${src}" alt="${caption}" onload="this.classList.add('loaded')" onerror="this.closest('.tl-card-img').remove()">` +
-        `<div class="tl-img-caption">© Wikipedia · ${caption.replace(/<[^>]+>/g,'')}</div>`;
+
+      const img = document.createElement('img');
+      img.src = src;
+      img.alt = title;
+      img.onload = () => img.classList.add('loaded');
+      img.onerror = () => imgDiv.remove();
+
+      const caption = document.createElement('div');
+      caption.className = 'tl-img-caption';
+      caption.textContent = `© Wikipedia · ${title.replace(/_/g, ' ')}`;
+
+      imgDiv.innerHTML = '';
+      imgDiv.appendChild(img);
+      imgDiv.appendChild(caption);
     } else {
       imgDiv.remove();
     }
