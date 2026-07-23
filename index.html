@@ -1,0 +1,1603 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>東京・青森・弘前 2026–27 行程</title>
+<style>
+  :root {
+    --primary: #1a1a1a;
+    --accent: #c0392b;
+    --accent-light: #fdf0ef;
+    --ski: #2563eb;
+    --ski-bg: #eff6ff;
+    --food: #16a34a;
+    --food-bg: #f0fdf4;
+    --sight: #7c3aed;
+    --sight-bg: #f5f3ff;
+    --transport: #92400e;
+    --transport-bg: #fffbeb;
+    --hotel: #0e7490;
+    --hotel-bg: #ecfeff;
+    --bg: #f8f7f5;
+    --card: #ffffff;
+    --text: #1a1a1a;
+    --text2: #6b7280;
+    --border: #e5e7eb;
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* Header */
+  .header {
+    background: var(--primary);
+    color: white;
+    padding: 20px 16px 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-title {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .header-sub {
+    font-size: 12px;
+    opacity: 0.6;
+    margin-top: 2px;
+  }
+
+  /* Day tabs */
+  .day-tabs {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding: 10px 16px 0;
+    scrollbar-width: none;
+    background: var(--primary);
+    -webkit-overflow-scrolling: touch;
+  }
+  .day-tabs::-webkit-scrollbar { display: none; }
+  .day-tab {
+    flex-shrink: 0;
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1.5px solid rgba(255,255,255,0.25);
+    color: rgba(255,255,255,0.7);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    background: transparent;
+  }
+  .day-tab.active {
+    background: white;
+    color: var(--primary);
+    border-color: white;
+  }
+
+  /* Progress bar */
+  .progress-bar {
+    height: 3px;
+    background: rgba(255,255,255,0.15);
+    margin: 10px 16px 0;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.3s;
+    border-radius: 2px;
+  }
+
+  /* Day panel */
+  .day-panel { display: none; padding: 16px; }
+  .day-panel.active { display: block; }
+
+  /* Day hero */
+  .day-hero {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 16px;
+    border: 1px solid var(--border);
+  }
+  .day-date {
+    font-size: 13px;
+    color: var(--accent);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .day-name {
+    font-size: 20px;
+    font-weight: 700;
+    margin-top: 4px;
+    line-height: 1.3;
+  }
+  .day-summary {
+    font-size: 13px;
+    color: var(--text2);
+    margin-top: 6px;
+    line-height: 1.5;
+  }
+  .day-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+  .day-tag {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+
+  /* Timeline */
+  .timeline { position: relative; }
+  .tl-section-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text2);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 8px 0 6px 28px;
+  }
+
+  .tl-item {
+    display: flex;
+    gap: 0;
+    position: relative;
+    margin-bottom: 4px;
+  }
+  .tl-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 28px;
+    flex-shrink: 0;
+    padding-top: 14px;
+  }
+  .tl-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--border);
+    border: 2px solid var(--bg);
+    z-index: 1;
+    flex-shrink: 0;
+    transition: background 0.2s;
+  }
+  .tl-dot.key { background: var(--primary); }
+  .tl-dot.checked { background: var(--food); }
+  .tl-line {
+    width: 1.5px;
+    background: var(--border);
+    flex: 1;
+    margin-top: 3px;
+    min-height: 12px;
+  }
+  .tl-card {
+    flex: 1;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .tl-card:hover { border-color: #d1d5db; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .tl-card.expanded { border-color: var(--primary); }
+  .tl-card-head {
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .tl-card-check {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  .tl-card-check.done {
+    background: var(--food);
+    border-color: var(--food);
+  }
+  .tl-card-check.done::after {
+    content: '';
+    width: 5px;
+    height: 8px;
+    border: 2px solid white;
+    border-top: none;
+    border-left: none;
+    transform: rotate(45deg) translateY(-1px);
+    display: block;
+  }
+  .tl-card-main { flex: 1; min-width: 0; }
+  .tl-card-time {
+    font-size: 11px;
+    color: var(--text2);
+    margin-bottom: 2px;
+  }
+  .tl-card-name {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  .tl-card-badge-row {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    margin-top: 5px;
+  }
+  .badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
+    letter-spacing: 0.02em;
+  }
+  .badge-ski { background: var(--ski-bg); color: var(--ski); }
+  .badge-food { background: var(--food-bg); color: var(--food); }
+  .badge-sight { background: var(--sight-bg); color: var(--sight); }
+  .badge-transport { background: var(--transport-bg); color: var(--transport); }
+  .badge-hotel { background: var(--hotel-bg); color: var(--hotel); }
+  .badge-shop { background: #fdf4ff; color: #86198f; }
+  .badge-warn { background: #fff7ed; color: #c2410c; }
+
+  .tl-arrow {
+    font-size: 16px;
+    color: var(--text2);
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+  .tl-card.expanded .tl-arrow { transform: rotate(180deg); }
+
+  .tl-card-body {
+    display: none;
+    border-top: 1px solid var(--border);
+    padding: 12px 14px;
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+  .tl-card.expanded .tl-card-body { display: block; }
+  .tl-card-body p { margin-bottom: 6px; }
+  .tl-card-body p:last-child { margin-bottom: 0; }
+  .tl-card-tip {
+    background: #fffbeb;
+    border-left: 3px solid #f59e0b;
+    padding: 8px 10px;
+    border-radius: 0 6px 6px 0;
+    margin-top: 10px;
+    font-size: 12px;
+    color: #92400e;
+    line-height: 1.5;
+  }
+  .tl-card-warn {
+    background: #fff1f2;
+    border-left: 3px solid #f43f5e;
+    padding: 8px 10px;
+    border-radius: 0 6px 6px 0;
+    margin-top: 10px;
+    font-size: 12px;
+    color: #9f1239;
+    line-height: 1.5;
+  }
+  .map-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 10px;
+    padding: 7px 14px;
+    border-radius: 20px;
+    background: var(--primary);
+    color: white;
+    font-size: 12px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: opacity 0.15s;
+  }
+  .map-btn:hover { opacity: 0.85; }
+
+  /* Day actions */
+  .day-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .action-btn {
+    flex: 1;
+    padding: 11px;
+    border-radius: var(--radius);
+    border: 1.5px solid var(--border);
+    background: var(--card);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.15s;
+  }
+  .action-btn:active { background: var(--bg); }
+  .action-btn.primary {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+  }
+  .action-btn.success {
+    background: var(--food);
+    color: white;
+    border-color: var(--food);
+  }
+
+  /* Checklist panel */
+  .checklist-panel {
+    margin: 0 16px 24px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .checklist-header {
+    padding: 14px 16px;
+    font-weight: 600;
+    font-size: 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+  }
+  .checklist-progress {
+    font-size: 12px;
+    color: var(--text2);
+    font-weight: 400;
+  }
+  .checklist-items { padding: 8px 0; display: none; }
+  .checklist-items.open { display: block; }
+  .cl-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--bg);
+    cursor: pointer;
+  }
+  .cl-item:last-child { border-bottom: none; }
+  .cl-check {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    border: 2px solid var(--border);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  .cl-check.done { background: var(--food); border-color: var(--food); }
+  .cl-check.done::after {
+    content: '';
+    width: 5px;
+    height: 8px;
+    border: 2px solid white;
+    border-top: none;
+    border-left: none;
+    transform: rotate(45deg) translateY(-1px);
+    display: block;
+  }
+  .cl-name { font-size: 13px; flex: 1; }
+  .cl-name.done { text-decoration: line-through; color: var(--text2); }
+  .cl-day { font-size: 11px; color: var(--text2); }
+
+  /* bottom spacer */
+  .spacer { height: 32px; }
+
+  @media (min-width: 600px) {
+    .header { padding: 24px 24px 16px; }
+    .day-tabs { padding: 10px 24px 0; }
+    .day-panel { padding: 20px 24px; }
+    .checklist-panel { margin: 0 24px 24px; }
+  }
+
+  /* Attraction photos */
+  .tl-card-img { border-radius: 8px; overflow: hidden; margin-bottom: 12px; background: var(--border); }
+  .tl-card-img img { width: 100%; height: 170px; object-fit: cover; display: block; opacity: 0; transition: opacity 0.45s; }
+  .tl-card-img img.loaded { opacity: 1; }
+  .tl-img-ph { width: 100%; height: 170px; display: flex; align-items: center; justify-content: center; font-size: 32px; color: var(--text2); background: var(--bg); }
+  .tl-img-caption { font-size: 10px; color: var(--text2); text-align: right; padding: 3px 6px; background: rgba(0,0,0,0.03); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-title">🗾 東京・青森・弘前 2026–27</div>
+  <div class="header-sub">12/26 – 1/2 · 8 天 7 夜</div>
+  <div class="day-tabs" id="dayTabs">
+    <div class="day-tab active" data-panel="d0">12/26 東京</div>
+    <div class="day-tab" data-panel="d1">12/27 仙台→鬼首</div>
+    <div class="day-tab" data-panel="d2">12/28 鬼首</div>
+    <div class="day-tab" data-panel="d3">12/29 →弘前</div>
+    <div class="day-tab" data-panel="d4">12/30 弘前</div>
+    <div class="day-tab" data-panel="d5">12/31 跨年</div>
+    <div class="day-tab" data-panel="d6">1/1 →仙台</div>
+    <div class="day-tab" data-panel="d7">1/2 回台</div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+</div>
+
+<!-- DAY 0: 12/26 東京 -->
+<div class="day-panel active" id="d0">
+  <div class="day-hero">
+    <div class="day-date">12 月 26 日（六）</div>
+    <div class="day-name">東京一日遊</div>
+    <div class="day-summary">凌晨抵達羽田，玩完淺草、六本木夜景後搭新幹線直奔仙台。</div>
+    <div class="day-tags">
+      <span class="badge badge-sight">觀光</span>
+      <span class="badge badge-food">美食</span>
+      <span class="badge badge-transport">移動日</span>
+    </div>
+  </div>
+  <div class="timeline">
+
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot key" id="dot-d0-0"></div><div class="tl-line"></div></div>
+      <div class="tl-card" onclick="toggleCard(this,'d0-0')">
+        <div class="tl-card-head">
+          <div class="tl-card-check" id="check-d0-0" onclick="toggleCheck(event,'d0-0')"></div>
+          <div class="tl-card-main">
+            <div class="tl-card-time">04:00</div>
+            <div class="tl-card-name">羽田機場降落</div>
+            <div class="tl-card-badge-row"><span class="badge badge-transport">交通</span></div>
+          </div>
+          <div class="tl-arrow">▾</div>
+        </div>
+        <div class="tl-card-body">
+          <p>搭 <strong>Keikyu 線</strong>（京急線）可直達品川、新橋、淺草方向。班次頻繁，約 40 分鐘入市區。</p>
+          <div class="tl-card-tip">💡 機場第一航廈有 24 小時咖啡廳，可在這裡等到早上 7-8 點再出發，省一晚住宿費。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot key" id="dot-d0-1"></div><div class="tl-line"></div></div>
+      <div class="tl-card" onclick="toggleCard(this,'d0-1')">
+        <div class="tl-card-head">
+          <div class="tl-card-check" id="check-d0-1" onclick="toggleCheck(event,'d0-1')"></div>
+          <div class="tl-card-main">
+            <div class="tl-card-time">09:00 – 11:00</div>
+            <div class="tl-card-name">淺草寺・仲見世通り</div>
+            <div class="tl-card-badge-row"><span class="badge badge-sight">景點</span></div>
+          </div>
+          <div class="tl-arrow">▾</div>
+        </div>
+        <div class="tl-card-body">
+          <p>東京最古老的寺廟，雷門大燈籠是必拍地標。仲見世通り有人形燒、年糕、紀念品。</p>
+          <p>順路可逛 <strong>合羽橋道具街</strong>（步行 10 分），日本廚房雜貨聖地，鍋碗瓢盆超好逛。</p>
+          <a class="map-btn" href="https://maps.google.com/?q=浅草寺,東京都台東区" target="_blank">📍 Google Maps</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot" id="dot-d0-2"></div><div class="tl-line"></div></div>
+      <div class="tl-card" onclick="toggleCard(this,'d0-2')">
+        <div class="tl-card-head">
+          <div class="tl-card-check" id="check-d0-2" onclick="toggleCheck(event,'d0-2')"></div>
+          <div class="tl-card-main">
+            <div class="tl-card-time">12:00</div>
+            <div class="tl-card-name">午餐</div>
+            <div class="tl-card-badge-row"><span class="badge badge-food">美食</span></div>
+          </div>
+          <div class="tl-arrow">▾</div>
+        </div>
+        <div class="tl-card-body">
+          <p>推薦選項：<br>
+          ・淺草エコー屋（天婦羅丼老店）<br>
+          ・上野アメヤ横丁小吃（步行可達）<br>
+          ・合羽橋附近家庭式日式定食</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot" id="dot-d0-3"></div><div class="tl-line"></div></div>
+      <div class="tl-card" onclick="toggleCard(this,'d0-3')">
+        <div class="tl-card-head">
+          <div class="tl-card-check" id="check-d0-3" onclick="toggleCheck(event,'d0-3')"></div>
+          <div class="tl-card-main">
+            <div class="tl-card-time">13:00 – 16:30</div>
+            <div class="tl-card-name">自由活動（三選一）</div>
+            <div class="tl-card-badge-row"><span class="badge badge-sight">景點</span></div>
+          </div>
+          <div class="tl-arrow">▾</div>
+        </div>
+        <div class="tl-card-body">
+          <p>🎮 <strong>秋葉原</strong>：電器、動漫、扭蛋，步行從淺草可搭地鐵 15 分。<br>
+          🎨 <strong>上野公園</strong>：東京國立博物館、動物園，冬天人少舒服。<br>
+          👗 <strong>原宿竹下通り</strong>：潮流服飾、可麗餅，逛完可走到表參道。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot key" id="dot-d0-4"></div><div class="tl-line"></div></div>
+      <div class="tl-card" onclick="toggleCard(this,'d0-4')">
+        <div class="tl-card-head">
+          <div class="tl-card-check" id="check-d0-4" onclick="toggleCheck(event,'d0-4')"></div>
+          <div class="tl-card-main">
+            <div class="tl-card-time">17:30 – 19:00</div>
+            <div class="tl-card-name">六本木ヒルズ 聖誕點燈 ✨</div>
+            <div class="tl-card-badge-row"><span class="badge badge-sight">必去</span></div>
+          </div>
+          <div class="tl-arrow">▾</div>
+        </div>
+        <div class="tl-card-body">
+          <p><strong>けやき坂イルミネーション</strong>：六本木ヒルズ欅坂，270 公尺的夢幻星光大道，是日本最上鏡的聖誕燈飾之一，約 17:00 點燈。</p>
+          <p>逛完可前往東京鐵塔方向（步行 10 分）補拍夜景。</p>
+          <a class="map-btn" href="https://maps.google.com/?q=六本木ヒルズ,東京都港区" target="_blank">📍 Google Maps</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot key" id="dot-d0-5"></div><div class="tl-line"></div></div>
+      <div class="tl-card" onclick="toggleCard(this,'d0-5')">
+        <div class="tl-card-head">
+          <div class="tl-card-check" id="check-d0-5" onclick="toggleCheck(event,'d0-5')"></div>
+          <div class="tl-card-main">
+            <div class="tl-card-time">19:30</div>
+            <div class="tl-card-name">東京站 → 新幹線至仙台</div>
+            <div class="tl-card-badge-row"><span class="badge badge-transport">交通</span></div>
+          </div>
+          <div class="tl-arrow">▾</div>
+        </div>
+        <div class="tl-card-body">
+          <p>搭 <strong>Hayabusa（はやぶさ）</strong>新幹線，約 1 小時 40 分抵達仙台。六本木搭地鐵約 20–25 分鐘至東京站，建議 19:00 前到站。</p>
+          <div class="tl-card-tip">💡 提早購買 EX 套票或新幹線預購票，比窗口購票便宜。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot key" id="dot-d0-6"></div><div class="tl-line"></div></div>
+      <div class="tl-card" onclick="toggleCard(this,'d0-6')">
+        <div class="tl-card-head">
+          <div class="tl-card-check" id="check-d0-6" onclick="toggleCheck(event,'d0-6')"></div>
+          <div class="tl-card-main">
+            <div class="tl-card-time">21:30</div>
+            <div class="tl-card-name">仙台牛舌晚餐 🐂</div>
+            <div class="tl-card-badge-row"><span class="badge badge-food">必吃</span></div>
+          </div>
+          <div class="tl-arrow">▾</div>
+        </div>
+        <div class="tl-card-body">
+          <p>推薦店家：<br>
+          ・<strong>利久（Rikyuu）</strong>：分店多，仙台站內有，最後點餐約 21:30<br>
+          ・<strong>太助（Tasuke）</strong>：仙台發源老店，國分町本店</p>
+          <p>點「定食」最划算：牛舌＋麥飯＋牛尾湯，三位一體的完美組合。</p>
+          <a class="map-btn" href="https://maps.google.com/?q=牛たん炭焼利久+仙台駅" target="_blank">📍 Google Maps 利久</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="day-actions">
+    <button class="action-btn" onclick="copyDay(0)"><span id="copy-d0">📋 複製行程</span></button>
+  </div>
+</div>
+
+<!-- DAY 1: 12/27 仙台→鬼首 -->
+<div class="day-panel" id="d1">
+  <div class="day-hero">
+    <div class="day-date">12 月 27 日（日）</div>
+    <div class="day-name">仙台 → 鬼首度假村</div>
+    <div class="day-summary">搭車至古川，接駁前往鬼首。下午滑雪，晚上泡溫泉。</div>
+    <div class="day-tags">
+      <span class="badge badge-ski">滑雪</span>
+      <span class="badge badge-transport">移動</span>
+    </div>
+  </div>
+  <div class="timeline">
+
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot" id="dot-d1-0"></div><div class="tl-line"></div></div>
+      <div class="tl-card" onclick="toggleCard(this,'d1-0')">
+        <div class="tl-card-head">
+          <div class="tl-card-check" id="check-d1-0" onclick="toggleCheck(event,'d1-0')"></div>
+          <div class="tl-card-main">
+            <div class="tl-card-time">早上</div>
+            <div class="tl-card-name">仙台早餐 + 採買</div>
+            <div class="tl-card-badge-row"><span class="badge badge-food">美食</span></div>
+          </div>
+          <div class="tl-arrow">▾</div>
+        </div>
+        <div class="tl-card-body">
+          <p>仙台站 S-PAL 或 Aer 地下街都有早餐選項。也可以在便利商店採買零食帶去滑雪場。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot key" id="dot-d1-1"></div><div class="tl-line"></div></div>
+      <div class="tl-card" onclick="toggleCard(this,'d1-1')">
+        <div class="tl-card-head">
+          <div class="tl-card-check" id="check-d1-1" onclick="toggleCheck(event,'d1-1')"></div>
+          <div class="tl-card-main">
+            <div class="tl-card-time">搭 JR 東北本線</div>
+            <div class="tl-card-name">仙台 → 古川站</div>
+            <div class="tl-card-badge-row"><span class="badge badge-transport">交通 · 約 30 分</span></div>
+          </div>
+          <div class="tl-arrow">▾</div>
+        </div>
+        <div class="tl-card-body">
+          <p>仙台搭 JR 東北本線至古川（小牛田方向）。注意班次間隔，配合 10:20 接駁車時間提前到站。</p>
+          <a class="map-btn" href="https://maps.google.com/?q=古川駅,宮城県大崎市" target="_blank">📍 古川站 Maps</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot key" id="dot-d1-2"></div><div class="tl-line"></div></div>
+      <div class="tl-card" onclick="toggleCard(this,'d1-2')">
+        <div class="tl-card-head">
+          <div class="tl-card-check" id="check-d1-2" onclick="toggleCheck(event,'d1-2')"></div>
+          <div class="tl-card-main">
+            <div class="tl-card-time">10:20</div>
+            <div class="tl-card-name">飯店接駁車出發</div>
+            <div class="tl-card-badge-row"><span class="badge badge-transport">接駁</span><span class="badge badge-hotel">住宿</span></div>
+          </div>
+          <div class="tl-arrow">▾</div>
+        </div>
+        <div class="tl-card-body">
+          <p>古川站搭飯店接駁車前往鬼首度假村。鬼首位於宮城縣奧羽山脈，車程約 40–50 分鐘。</p>
+          <div class="tl-card-tip">💡 提前聯絡飯店確認接駁車搭乘位置（通常在車站出口）。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot key" id="dot-d1-3"></div><div class="tl-line"></div></div>
+      <div class="tl-card" onclick="toggleCard(this,'d1-3')">
+        <div class="tl-card-head">
+          <div class="tl-card-check" id="check-d1-3" onclick="toggleCheck(event,'d1-3')"></div>
+          <div class="tl-card-main">
+            <div class="tl-card-time">抵達後 – 下午</div>
+            <div class="tl-card-name">鬼首滑雪場（半天）⛷️</div>
+            <div class="tl-card-badge-row"><span class="badge badge-ski">滑雪</span></div>
+          </div>
+          <div class="tl-arrow">▾</div>
+        </div>
+        <div class="tl-card-body">
+          <p>鬼首スキー場是東北老牌滑雪場，雪質粉雪，多條坡道適合各程度滑雪者。中午到達可以先 check in 後下午滑雪。</p>
+          <a class="map-btn" href="https://maps.google.com/?q=鬼首スキー場,宮城県" target="_blank">📍 Google Maps</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot key" id="dot-d1-4"></div></div>
+      <div class="tl-card" onclick="toggleCard(this,'d1-4')">
+        <div class="tl-card-head">
+          <div class="tl-card-check" id="check-d1-4" onclick="toggleCheck(event,'d1-4')"></div>
+          <div class="tl-card-main">
+            <div class="tl-card-time">晚上</div>
+            <div class="tl-card-name">鬼首溫泉 ♨️</div>
+            <div class="tl-card-badge-row"><span class="badge badge-hotel">住宿</span></div>
+          </div>
+          <div class="tl-arrow">▾</div>
+        </div>
+        <div class="tl-card-body">
+          <p>鬼首是知名溫泉鄉，滑完雪泡溫泉最舒服。鬼首溫泉的源泉含硫磺，皮膚滑嫩，屬美人湯。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="day-actions">
+    <button class="action-btn" onclick="copyDay(1)"><span id="copy-d1">📋 複製行程</span></button>
+  </div>
+</div>
+
+<!-- DAY 2: 12/28 鬼首 -->
+<div class="day-panel" id="d2">
+  <div class="day-hero">
+    <div class="day-date">12 月 28 日（一）</div>
+    <div class="day-name">鬼首度假村・全日滑雪</div>
+    <div class="day-summary">今天就是滑雪！不要想太多，全力衝坡道。</div>
+    <div class="day-tags"><span class="badge badge-ski">滑雪全日</span></div>
+  </div>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot key" id="dot-d2-0"></div><div class="tl-line"></div></div>
+      <div class="tl-card" onclick="toggleCard(this,'d2-0')">
+        <div class="tl-card-head">
+          <div class="tl-card-check" id="check-d2-0" onclick="toggleCheck(event,'d2-0')"></div>
+          <div class="tl-card-main">
+            <div class="tl-card-time">早上 – 下午</div>
+            <div class="tl-card-name">鬼首スキー場 全天 ⛷️</div>
+            <div class="tl-card-badge-row"><span class="badge badge-ski">滑雪</span></div>
+          </div>
+          <div class="tl-arrow">▾</div>
+        </div>
+        <div class="tl-card-body">
+          <p>鬼首有多條坡道，從初學者緩坡到進階陡坡都有。建議早上纜車開放就出發，雪況最佳。</p>
+          <div class="tl-card-tip">💡 雪具租借可提前詢問飯店，通常飯店內有租借服務，比雪場現場更方便。</div>
+        </div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot" id="dot-d2-1"></div><div class="tl-line"></div></div>
+      <div class="tl-card" onclick="toggleCard(this,'d2-1')">
+        <div class="tl-card-head">
+          <div class="tl-card-check" id="check-d2-1" onclick="toggleCheck(event,'d2-1')"></div>
+          <div class="tl-card-main">
+            <div class="tl-card-time">12:00</div>
+            <div class="tl-card-name">雪場午餐</div>
+            <div class="tl-card-badge-row"><span class="badge badge-food">美食</span></div>
+          </div>
+          <div class="tl-arrow">▾</div>
+        </div>
+        <div class="tl-card-body">
+          <p>雪場餐廳選項：日式咖哩飯、拉麵、豚汁定食。冷天喝豚汁最暖身。</p>
+        </div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot key" id="dot-d2-2"></div></div>
+      <div class="tl-card" onclick="toggleCard(this,'d2-2')">
+        <div class="tl-card-head">
+          <div class="tl-card-check" id="check-d2-2" onclick="toggleCheck(event,'d2-2')"></div>
+          <div class="tl-card-main">
+            <div class="tl-card-time">傍晚</div>
+            <div class="tl-card-name">泡溫泉 + 早休息</div>
+            <div class="tl-card-badge-row"><span class="badge badge-hotel">住宿</span></div>
+          </div>
+          <div class="tl-arrow">▾</div>
+        </div>
+        <div class="tl-card-body">
+          <p>明天 09:00 就要出發，晚上好好休息，打包好隔天要帶的行李。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="day-actions">
+    <button class="action-btn" onclick="copyDay(2)"><span id="copy-d2">📋 複製行程</span></button>
+  </div>
+</div>
+
+<!-- DAY 3: 12/29 →弘前 -->
+<div class="day-panel" id="d3">
+  <div class="day-hero">
+    <div class="day-date">12 月 29 日（二）</div>
+    <div class="day-name">鬼首 → 青森 → 弘前</div>
+    <div class="day-summary">搭車移動至新青森租車，順遊青森市精華景點，傍晚抵達弘前。</div>
+    <div class="day-tags">
+      <span class="badge badge-transport">移動日</span>
+      <span class="badge badge-sight">青森市觀光</span>
+    </div>
+  </div>
+  <div class="timeline">
+
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot key" id="dot-d3-0"></div><div class="tl-line"></div></div>
+      <div class="tl-card" onclick="toggleCard(this,'d3-0')">
+        <div class="tl-card-head">
+          <div class="tl-card-check" id="check-d3-0" onclick="toggleCheck(event,'d3-0')"></div>
+          <div class="tl-card-main">
+            <div class="tl-card-time">09:00</div>
+            <div class="tl-card-name">接駁車 → 古川站</div>
+            <div class="tl-card-badge-row"><span class="badge badge-transport">交通</span></div>
+          </div>
+          <div class="tl-arrow">▾</div>
+        </div>
+        <div class="tl-card-body">
+          <p>飯店接駁車 09:00 出發，約 40 分後抵達古川站。出發前在飯店吃好早餐，路上約 3 小時車程。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot key" id="dot-d3-1"></div><div class="tl-line"></div></div>
+      <div class="tl-card" onclick="toggleCard(this,'d3-1')">
+        <div class="tl-card-head">
+          <div class="tl-card-check" id="check-d3-1" onclick="toggleCheck(event,'d3-1')"></div>
+          <div class="tl-card-main">
+            <div class="tl-card-time">約 09:45 → 12:00</div>
+            <div class="tl-card-name">古川 → 仙台 → 新青森（新幹線）</div>
+            <div class="tl-card-badge-row"><span class="badge badge-transport">新幹線</span></div>
+          </div>
+          <div class="tl-arrow">▾</div>
+        </div>
+        <div class="tl-card-body">
+          <p>古川搭 JR 至仙台（30 分），仙台轉 <strong>Hayabusa 新幹線</strong>至新青森（約 1h40min）。全程約 2.5 小時，預計中午抵達。</p>
+          <div class="tl-card-tip">💡 可以在仙台站利用轉車空檔，快速帶走一杯仙台咖啡。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot key" id="dot-d3-2"></div><div class="tl-line"></div></div>
+      <div class="tl-card" onclick="toggleCard(this,'d3-2')">
+        <div class="tl-card-head">
+          <div class="tl-card-check" id="check-d3-2" onclick="toggleCheck(event,'d3-2')"></div>
+          <div class="tl-card-main">
+            <div class="tl-card-time">12:00</div>
+            <div class="tl-card-name">新青森站取車</div>
+            <div class="tl-card-badge-row"><span class="badge badge-transport">租車</span></div>
+          </div>
+          <div class="tl-arrow">▾</div>
+        </div>
+        <div class="tl-card-body">
+          <p>新青森站附近有 Toyota、Times 等租車公司。建議提前線上預約，選雪地輪胎（スタッドレスタイヤ）車型，12 月東北必備。</p>
+          <div class="tl-card-warn">⚠️ 元旦前後人多，務必提前預約！還車也在新青森（1/1 傍晚）。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot key" id="dot-d3-3"></div><div class="tl-line"></div></div>
+      <div class="tl-card" onclick="toggleCard(this,'d3-3')">
+        <div class="tl-card-head">
+          <div class="tl-card-check" id="check-d3-3" onclick="toggleCheck(event,'d3-3')"></div>
+          <div class="tl-card-main">
+            <div class="tl-card-time">13:00</div>
+            <div class="tl-card-name">青森 A Factory 🍎</div>
+            <div class="tl-card-badge-row"><span class="badge badge-sight">景點</span><span class="badge badge-food">伴手禮</span></div>
+          </div>
+          <div class="tl-arrow">▾</div>
+        </div>
+        <div class="tl-card-body">
+          <p>青森港邊的蘋果主題設施，有釀造所、餐廳、伴手禮店。可以試喝各種青森蘋果酒（シードル），景色也很好。</p>
+          <a class="map-btn" href="https://maps.google.com/?q=A-FACTORY,青森市" target="_blank">📍 Google Maps</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot key" id="dot-d3-4"></div><div class="tl-line"></div></div>
+      <div class="tl-card" onclick="toggleCard(this,'d3-4')">
+        <div class="tl-card-head">
+          <div class="tl-card-check" id="check-d3-4" onclick="toggleCheck(event,'d3-4')"></div>
+          <div class="tl-card-main">
+            <div class="tl-card-time">14:00 – 15:30</div>
+            <div class="tl-card-name">ワ・ラッセ 睡魔館</div>
+            <div class="tl-card-badge-row"><span class="badge badge-sight">必去</span></div>
+          </div>
+          <div class="tl-arrow">▾</div>
+        </div>
+        <div class="tl-card-body">
+          <p>青森ねぶた祭り的大型燈籠常設展示館。近距離看這些巨型燈籠非常震撼，配有詳細解說。與 A Factory 相鄰，走路可到。</p>
+          <a class="map-btn" href="https://maps.google.com/?q=ねぶたの家ワラッセ,青森市" target="_blank">📍 Google Maps</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot" id="dot-d3-5"></div><div class="tl-line"></div></div>
+      <div class="tl-card" onclick="toggleCard(this,'d3-5')">
+        <div class="tl-card-head">
+          <div class="tl-card-check" id="check-d3-5" onclick="toggleCheck(event,'d3-5')"></div>
+          <div class="tl-card-main">
+            <div class="tl-card-time">16:00</div>
+            <div class="tl-card-name">廣田神社</div>
+            <div class="tl-card-badge-row"><span class="badge badge-sight">景點</span></div>
+          </div>
+          <div class="tl-arrow">▾</div>
+        </div>
+        <div class="tl-card-body">
+          <p>青森市內的神社，今天先快速參拜，元旦（1/1）再來初詣，感受截然不同的氛圍。</p>
+          <a class="map-btn" href="https://maps.google.com/?q=廣田神社,青森県" target="_blank">📍 Google Maps</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot key" id="dot-d3-6"></div></div>
+      <div class="tl-card" onclick="toggleCard(this,'d3-6')">
+        <div class="tl-card-head">
+          <div class="tl-card-check" id="check-d3-6" onclick="toggleCheck(event,'d3-6')"></div>
+          <div class="tl-card-main">
+            <div class="tl-card-time">17:00</div>
+            <div class="tl-card-name">開車至弘前 Check in</div>
+            <div class="tl-card-badge-row"><span class="badge badge-hotel">住宿</span></div>
+          </div>
+          <div class="tl-arrow">▾</div>
+        </div>
+        <div class="tl-card-body">
+          <p>青森市區至弘前市中心約 40 分鐘車程。晚餐可在弘前試試：<strong>津輕鄉土料理</strong>、蘋果豬涮涮鍋、或市區居酒屋。</p>
+          <a class="map-btn" href="https://maps.google.com/?q=弘前市,青森県" target="_blank">📍 弘前市 Maps</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="day-actions">
+    <button class="action-btn" onclick="copyDay(3)"><span id="copy-d3">📋 複製行程</span></button>
+  </div>
+</div>
+
+<!-- DAY 4: 12/30 -->
+<div class="day-panel" id="d4">
+  <div class="day-hero">
+    <div class="day-date">12 月 30 日（三）</div>
+    <div class="day-name">弘前・春天滑雪 + 傍晚市區</div>
+    <div class="day-summary">白天衝坡道，傍晚探索弘前老城區，吃蘋果派。</div>
+    <div class="day-tags">
+      <span class="badge badge-ski">滑雪</span>
+      <span class="badge badge-sight">弘前觀光</span>
+      <span class="badge badge-food">蘋果派</span>
+    </div>
+  </div>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot key" id="dot-d4-0"></div><div class="tl-line"></div></div>
+      <div class="tl-card" onclick="toggleCard(this,'d4-0')">
+        <div class="tl-card-head">
+          <div class="tl-card-check" id="check-d4-0" onclick="toggleCheck(event,'d4-0')"></div>
+          <div class="tl-card-main">
+            <div class="tl-card-time">上午 – 下午</div>
+            <div class="tl-card-name">春天滑雪場 ⛷️</div>
+            <div class="tl-card-badge-row"><span class="badge badge-ski">滑雪</span></div>
+          </div>
+          <div class="tl-arrow">▾</div>
+        </div>
+        <div class="tl-card-body">
+          <p>弘前近郊滑雪場，建議提前確認雪況與纜車運行時間。從弘前市區開車約 20–40 分鐘。</p>
+          <div class="tl-card-tip">💡 可以提早結束滑雪（約 14:00–15:00 回市區），傍晚行程才有時間。</div>
+        </div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot key" id="dot-d4-1"></div><div class="tl-line"></div></div>
+      <div class="tl-card" onclick="toggleCard(this,'d4-1')">
+        <div class="tl-card-head">
+          <div class="tl-card-check" id="check-d4-1" onclick="toggleCheck(event,'d4-1')"></div>
+          <div class="tl-card-main">
+            <div class="tl-card-time">傍晚</div>
+            <div class="tl-card-name">最勝院五重塔</div>
+            <div class="tl-card-badge-row"><span class="badge badge-sight">景點</span></div>
+          </div>
+          <div class="tl-arrow">▾</div>
+        </div>
+        <div class="tl-card-body">
+          <p>東北唯一的五重塔，高 31 公尺，在雪地中更顯莊嚴。建於 1667 年，是弘前的重要文化財。黃昏燈光點亮後特別美。</p>
+          <a class="map-btn" href="https://maps.google.com/?q=最勝院五重塔,弘前市" target="_blank">📍 Google Maps</a>
+        </div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot" id="dot-d4-2"></div><div class="tl-line"></div></div>
+      <div class="tl-card" onclick="toggleCard(this,'d4-2')">
+        <div class="tl-card-head">
+          <div class="tl-card-check" id="check-d4-2" onclick="toggleCheck(event,'d4-2')"></div>
+          <div class="tl-card-main">
+            <div class="tl-card-time"></div>
+            <div class="tl-card-name">仲町傳統建築保存地區</div>
+            <div class="tl-card-badge-row"><span class="badge badge-sight">景點</span></div>
+          </div>
+          <div class="tl-arrow">▾</div>
+        </div>
+        <div class="tl-card-body">
+          <p>舊武家屋敷街道，積雪的石牆與老樹排列其間，氣氛非常靜謐。適合拍照散步，15 分鐘就能走完精華段。</p>
+          <a class="map-btn" href="https://maps.google.com/?q=仲町伝統的建造物群保存地区,弘前市" target="_blank">📍 Google Maps</a>
+        </div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot key" id="dot-d4-3"></div></div>
+      <div class="tl-card" onclick="toggleCard(this,'d4-3')">
+        <div class="tl-card-head">
+          <div class="tl-card-check" id="check-d4-3" onclick="toggleCheck(event,'d4-3')"></div>
+          <div class="tl-card-main">
+            <div class="tl-card-time"></div>
+            <div class="tl-card-name">弘前蘋果派 🍎</div>
+            <div class="tl-card-badge-row"><span class="badge badge-food">必吃</span></div>
+          </div>
+          <div class="tl-arrow">▾</div>
+        </div>
+        <div class="tl-card-body">
+          <p>弘前是日本最大蘋果產地，蘋果派各有特色：<br>
+          ・<strong>きむらや</strong>：老字號，酥脆派皮<br>
+          ・<strong>アップルパイ専門店</strong>：創新口味，照片打卡熱點<br>
+          ・<strong>洋菓子の葛西</strong>：在地人推薦</p>
+          <div class="tl-card-tip">💡 記得多買幾盒帶回去當伴手禮，常溫保存 3–5 天。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="day-actions">
+    <button class="action-btn" onclick="copyDay(4)"><span id="copy-d4">📋 複製行程</span></button>
+  </div>
+</div>
+
+<!-- DAY 5: 12/31 跨年 -->
+<div class="day-panel" id="d5">
+  <div class="day-hero">
+    <div class="day-date">12 月 31 日（四）</div>
+    <div class="day-name">弘前・跨年夜</div>
+    <div class="day-summary">上午衝最後一次雪道，下午好好逛弘前城、美術館，跨年夜迎接新年。</div>
+    <div class="day-tags">
+      <span class="badge badge-ski">滑雪</span>
+      <span class="badge badge-sight">弘前觀光</span>
+    </div>
+  </div>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot key" id="dot-d5-0"></div><div class="tl-line"></div></div>
+      <div class="tl-card" onclick="toggleCard(this,'d5-0')">
+        <div class="tl-card-head">
+          <div class="tl-card-check" id="check-d5-0" onclick="toggleCheck(event,'d5-0')"></div>
+          <div class="tl-card-main">
+            <div class="tl-card-time">上午</div>
+            <div class="tl-card-name">春天滑雪場（半天）⛷️</div>
+            <div class="tl-card-badge-row"><span class="badge badge-ski">滑雪</span></div>
+          </div>
+          <div class="tl-arrow">▾</div>
+        </div>
+        <div class="tl-card-body">
+          <p>最後一次雪道，好好享受！建議中午前回程，下午景點比較充裕。</p>
+        </div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot key" id="dot-d5-1"></div><div class="tl-line"></div></div>
+      <div class="tl-card" onclick="toggleCard(this,'d5-1')">
+        <div class="tl-card-head">
+          <div class="tl-card-check" id="check-d5-1" onclick="toggleCheck(event,'d5-1')"></div>
+          <div class="tl-card-main">
+            <div class="tl-card-time">下午 13:00</div>
+            <div class="tl-card-name">弘前公園・弘前城</div>
+            <div class="tl-card-badge-row"><span class="badge badge-sight">必去</span></div>
+          </div>
+          <div class="tl-arrow">▾</div>
+        </div>
+        <div class="tl-card-body">
+          <p>日本 100 名城之一，冬天積雪的弘前城護城河結冰，與紅色太鼓橋的組合非常夢幻。公園免費入場（本丸天守有入場費）。</p>
+          <a class="map-btn" href="https://maps.google.com/?q=弘前公園,弘前市" target="_blank">📍 Google Maps</a>
+        </div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot key" id="dot-d5-2"></div><div class="tl-line"></div></div>
+      <div class="tl-card" onclick="toggleCard(this,'d5-2')">
+        <div class="tl-card-head">
+          <div class="tl-card-check" id="check-d5-2" onclick="toggleCheck(event,'d5-2')"></div>
+          <div class="tl-card-main">
+            <div class="tl-card-time">14:30</div>
+            <div class="tl-card-name">弘前れんが倉庫美術館</div>
+            <div class="tl-card-badge-row"><span class="badge badge-sight">必去</span></div>
+          </div>
+          <div class="tl-arrow">▾</div>
+        </div>
+        <div class="tl-card-body">
+          <p>舊清酒倉庫改建的當代美術館，建築本身就是藝術品。展覽以弘前在地藝術家為主，每季更換，請查詢目前特展。</p>
+          <a class="map-btn" href="https://maps.google.com/?q=弘前れんが倉庫美術館" target="_blank">📍 Google Maps</a>
+        </div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot" id="dot-d5-3"></div><div class="tl-line"></div></div>
+      <div class="tl-card" onclick="toggleCard(this,'d5-3')">
+        <div class="tl-card-head">
+          <div class="tl-card-check" id="check-d5-3" onclick="toggleCheck(event,'d5-3')"></div>
+          <div class="tl-card-main">
+            <div class="tl-card-time">16:30</div>
+            <div class="tl-card-name">藤田記念庭園</div>
+            <div class="tl-card-badge-row"><span class="badge badge-sight">景點</span></div>
+          </div>
+          <div class="tl-arrow">▾</div>
+        </div>
+        <div class="tl-card-body">
+          <p>免費入園的日式庭園（洋館・茶室另購票）。冬季有雪吊保護松樹，景色很特別，緊鄰弘前公園。</p>
+          <a class="map-btn" href="https://maps.google.com/?q=藤田記念庭園,弘前市" target="_blank">📍 Google Maps</a>
+        </div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot key" id="dot-d5-4"></div><div class="tl-line"></div></div>
+      <div class="tl-card" onclick="toggleCard(this,'d5-4')">
+        <div class="tl-card-head">
+          <div class="tl-card-check" id="check-d5-4" onclick="toggleCheck(event,'d5-4')"></div>
+          <div class="tl-card-main">
+            <div class="tl-card-time">晚上</div>
+            <div class="tl-card-name">跨年夜活動 🎆</div>
+            <div class="tl-card-badge-row"></div>
+          </div>
+          <div class="tl-arrow">▾</div>
+        </div>
+        <div class="tl-card-body">
+          <p>選項：<br>
+          ・弘前公園跨年點燈活動（可查詢當年活動）<br>
+          ・市區神社除夕撞鐘（最勝院或弘前八幡宮）<br>
+          ・居酒屋跨年，和日本人一起看紅白歌合戰</p>
+          <div class="tl-card-tip">💡 跨年後人潮散去，可在公園附近感受靜謐的新年寂靜時刻。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="day-actions">
+    <button class="action-btn" onclick="copyDay(5)"><span id="copy-d5">📋 複製行程</span></button>
+  </div>
+</div>
+
+<!-- DAY 6: 1/1 -->
+<div class="day-panel" id="d6">
+  <div class="day-hero">
+    <div class="day-date">1 月 1 日（五）元旦</div>
+    <div class="day-name">弘前 → 青森 → 仙台</div>
+    <div class="day-summary">元旦初詣後還車，新幹線回仙台過夜。⚠️ 出發前確認館所元旦是否開放。</div>
+    <div class="day-tags">
+      <span class="badge badge-sight">青森觀光</span>
+      <span class="badge badge-transport">移動</span>
+      <span class="badge badge-warn">元旦注意</span>
+    </div>
+  </div>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot" id="dot-d6-0"></div><div class="tl-line"></div></div>
+      <div class="tl-card" onclick="toggleCard(this,'d6-0')">
+        <div class="tl-card-head">
+          <div class="tl-card-check" id="check-d6-0" onclick="toggleCheck(event,'d6-0')"></div>
+          <div class="tl-card-main">
+            <div class="tl-card-time">早上</div>
+            <div class="tl-card-name">弘前公園晨間散步</div>
+            <div class="tl-card-badge-row"><span class="badge badge-sight">景點</span></div>
+          </div>
+          <div class="tl-arrow">▾</div>
+        </div>
+        <div class="tl-card-body">
+          <p>元旦早晨人少，雪地弘前城最靜謐，是難得的安靜時刻。適合拍照和沉澱心情。</p>
+        </div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot key" id="dot-d6-1"></div><div class="tl-line"></div></div>
+      <div class="tl-card" onclick="toggleCard(this,'d6-1')">
+        <div class="tl-card-head">
+          <div class="tl-card-check" id="check-d6-1" onclick="toggleCheck(event,'d6-1')"></div>
+          <div class="tl-card-main">
+            <div class="tl-card-time">前往青森市</div>
+            <div class="tl-card-name">廣田神社 初詣 🙏</div>
+            <div class="tl-card-badge-row"><span class="badge badge-sight">必去</span></div>
+          </div>
+          <div class="tl-arrow">▾</div>
+        </div>
+        <div class="tl-card-body">
+          <p>元旦第一次參拜（初詣）是日本最重要的新年習俗。廣田神社擠滿當地人，甜酒（甘酒）、神籤（おみくじ）、御守，感受道地日本新年氛圍。</p>
+          <a class="map-btn" href="https://maps.google.com/?q=廣田神社,青森県" target="_blank">📍 Google Maps</a>
+        </div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot key" id="dot-d6-2"></div><div class="tl-line"></div></div>
+      <div class="tl-card" onclick="toggleCard(this,'d6-2')">
+        <div class="tl-card-head">
+          <div class="tl-card-check" id="check-d6-2" onclick="toggleCheck(event,'d6-2')"></div>
+          <div class="tl-card-main">
+            <div class="tl-card-time"></div>
+            <div class="tl-card-name">青森縣立美術館</div>
+            <div class="tl-card-badge-row"><span class="badge badge-sight">必去</span><span class="badge badge-warn">確認元旦</span></div>
+          </div>
+          <div class="tl-arrow">▾</div>
+        </div>
+        <div class="tl-card-body">
+          <p>館藏包含夏卡爾為青森設計的巨型舞台幕（阿レコ），高 9 公尺非常震撼。白色建築外觀在雪地中超美。</p>
+          <div class="tl-card-warn">⚠️ 元旦通常休館，請出發前查詢官網確認營業狀態。若休館可考慮改去棟方志功記念館（同樣請確認）。</div>
+          <a class="map-btn" href="https://maps.google.com/?q=青森県立美術館" target="_blank">📍 Google Maps</a>
+        </div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot" id="dot-d6-3"></div><div class="tl-line"></div></div>
+      <div class="tl-card" onclick="toggleCard(this,'d6-3')">
+        <div class="tl-card-head">
+          <div class="tl-card-check" id="check-d6-3" onclick="toggleCheck(event,'d6-3')"></div>
+          <div class="tl-card-main">
+            <div class="tl-card-time"></div>
+            <div class="tl-card-name">青森 A Factory・最後採買</div>
+            <div class="tl-card-badge-row"><span class="badge badge-food">伴手禮</span></div>
+          </div>
+          <div class="tl-arrow">▾</div>
+        </div>
+        <div class="tl-card-body">
+          <p>最後機會補買蘋果酒、蘋果果凍、乾燥蘋果等青森限定伴手禮。A Factory 元旦通常有開。</p>
+        </div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot key" id="dot-d6-4"></div><div class="tl-line"></div></div>
+      <div class="tl-card" onclick="toggleCard(this,'d6-4')">
+        <div class="tl-card-head">
+          <div class="tl-card-check" id="check-d6-4" onclick="toggleCheck(event,'d6-4')"></div>
+          <div class="tl-card-main">
+            <div class="tl-card-time">傍晚</div>
+            <div class="tl-card-name">新青森還車 → 新幹線至仙台</div>
+            <div class="tl-card-badge-row"><span class="badge badge-transport">交通</span></div>
+          </div>
+          <div class="tl-arrow">▾</div>
+        </div>
+        <div class="tl-card-body">
+          <p>新青森站還車後搭 Hayabusa 至仙台，約 1 小時 40 分。元旦新幹線客滿，務必提前訂票。</p>
+        </div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot key" id="dot-d6-5"></div></div>
+      <div class="tl-card" onclick="toggleCard(this,'d6-5')">
+        <div class="tl-card-head">
+          <div class="tl-card-check" id="check-d6-5" onclick="toggleCheck(event,'d6-5')"></div>
+          <div class="tl-card-main">
+            <div class="tl-card-time">晚上</div>
+            <div class="tl-card-name">仙台牛舌晚餐 🐂</div>
+            <div class="tl-card-badge-row"><span class="badge badge-food">必吃</span></div>
+          </div>
+          <div class="tl-arrow">▾</div>
+        </div>
+        <div class="tl-card-body">
+          <p>再吃一次仙台牛舌！元旦部分店家可能公休，推薦在仙台站內「利久」，站內分店通常元旦也有開。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="day-actions">
+    <button class="action-btn" onclick="copyDay(6)"><span id="copy-d6">📋 複製行程</span></button>
+  </div>
+</div>
+
+<!-- DAY 7: 1/2 -->
+<div class="day-panel" id="d7">
+  <div class="day-hero">
+    <div class="day-date">1 月 2 日（六）</div>
+    <div class="day-name">仙台購物 → 返台</div>
+    <div class="day-summary">早上把握時間採購，下午出發仙台機場，17:25 起飛。</div>
+    <div class="day-tags">
+      <span class="badge badge-shop">購物</span>
+      <span class="badge badge-transport">回台</span>
+    </div>
+  </div>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot key" id="dot-d7-0"></div><div class="tl-line"></div></div>
+      <div class="tl-card" onclick="toggleCard(this,'d7-0')">
+        <div class="tl-card-head">
+          <div class="tl-card-check" id="check-d7-0" onclick="toggleCheck(event,'d7-0')"></div>
+          <div class="tl-card-main">
+            <div class="tl-card-time">早上</div>
+            <div class="tl-card-name">仙台採購 🛍️</div>
+            <div class="tl-card-badge-row"><span class="badge badge-shop">購物</span></div>
+          </div>
+          <div class="tl-arrow">▾</div>
+        </div>
+        <div class="tl-card-body">
+          <p>・<strong>仙台朝市</strong>：生鮮食材、在地醬菜，早上最熱鬧<br>
+          ・<strong>S-PAL 仙台</strong>：仙台站直結，各品牌＋伴手禮齊全<br>
+          ・<strong>藤崎百貨</strong>：老字號百貨，食品館超強</p>
+        </div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot key" id="dot-d7-1"></div><div class="tl-line"></div></div>
+      <div class="tl-card" onclick="toggleCard(this,'d7-1')">
+        <div class="tl-card-head">
+          <div class="tl-card-check" id="check-d7-1" onclick="toggleCheck(event,'d7-1')"></div>
+          <div class="tl-card-main">
+            <div class="tl-card-time">必買</div>
+            <div class="tl-card-name">仙台伴手禮清單</div>
+            <div class="tl-card-badge-row"><span class="badge badge-food">伴手禮</span></div>
+          </div>
+          <div class="tl-arrow">▾</div>
+        </div>
+        <div class="tl-card-body">
+          <p>🌙 <strong>萩の月</strong>：仙台最名物，奶油卡士達蛋糕<br>
+          🌿 <strong>ずんだ餅</strong>：毛豆泥麻糬，仙台特色<br>
+          🐄 <strong>牛舌真空包</strong>：帶回去自己烤<br>
+          🐟 <strong>笹蒲鉾</strong>：竹葉造型魚板<br>
+          🌊 <strong>松島牡蠣醬</strong>：宮城海產醬料</p>
+        </div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot key" id="dot-d7-2"></div><div class="tl-line"></div></div>
+      <div class="tl-card" onclick="toggleCard(this,'d7-2')">
+        <div class="tl-card-head">
+          <div class="tl-card-check" id="check-d7-2" onclick="toggleCheck(event,'d7-2')"></div>
+          <div class="tl-card-main">
+            <div class="tl-card-time">15:00 前</div>
+            <div class="tl-card-name">前往仙台機場 SDJ</div>
+            <div class="tl-card-badge-row"><span class="badge badge-transport">交通</span></div>
+          </div>
+          <div class="tl-arrow">▾</div>
+        </div>
+        <div class="tl-card-body">
+          <p>仙台機場線（Sendai Airport Access Line）從仙台站出發，約 25 分鐘。建議 15:00 前抵達機場，預留充足 check-in 時間。</p>
+          <div class="tl-card-tip">💡 機場内の免稅店也有萩の月可以補買，但價格相同，最後機會。</div>
+        </div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot key" id="dot-d7-3"></div></div>
+      <div class="tl-card" onclick="toggleCard(this,'d7-3')">
+        <div class="tl-card-head">
+          <div class="tl-card-check" id="check-d7-3" onclick="toggleCheck(event,'d7-3')"></div>
+          <div class="tl-card-main">
+            <div class="tl-card-time">17:25</div>
+            <div class="tl-card-name">仙台 → 台北 ✈️</div>
+            <div class="tl-card-badge-row"><span class="badge badge-transport">起飛</span></div>
+          </div>
+          <div class="tl-arrow">▾</div>
+        </div>
+        <div class="tl-card-body">
+          <p>SDJ 出發，預計台北時間隔天 10:35 抵達。帶著一肚子牛舌和行李箱的蘋果派平安回家 🎿🍎</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="day-actions">
+    <button class="action-btn" onclick="copyDay(7)"><span id="copy-d7">📋 複製行程</span></button>
+  </div>
+</div>
+
+<!-- Checklist -->
+<div class="checklist-panel">
+  <div class="checklist-header" onclick="toggleChecklist()">
+    <span>📍 必去景點打卡清單</span>
+    <span class="checklist-progress" id="clProgress">0 / 14 完成</span>
+  </div>
+  <div class="checklist-items" id="clItems">
+    <div class="cl-item" onclick="toggleCL(this)"><div class="cl-check"></div><span class="cl-name">淺草寺・仲見世通り</span><span class="cl-day">12/26</span></div>
+    <div class="cl-item" onclick="toggleCL(this)"><div class="cl-check"></div><span class="cl-name">六本木ヒルズ 聖誕點燈</span><span class="cl-day">12/26</span></div>
+    <div class="cl-item" onclick="toggleCL(this)"><div class="cl-check"></div><span class="cl-name">仙台牛舌</span><span class="cl-day">12/26</span></div>
+    <div class="cl-item" onclick="toggleCL(this)"><div class="cl-check"></div><span class="cl-name">鬼首滑雪</span><span class="cl-day">12/27–28</span></div>
+    <div class="cl-item" onclick="toggleCL(this)"><div class="cl-check"></div><span class="cl-name">青森 A Factory</span><span class="cl-day">12/29</span></div>
+    <div class="cl-item" onclick="toggleCL(this)"><div class="cl-check"></div><span class="cl-name">ワ・ラッセ 睡魔館</span><span class="cl-day">12/29</span></div>
+    <div class="cl-item" onclick="toggleCL(this)"><div class="cl-check"></div><span class="cl-name">春天滑雪場</span><span class="cl-day">12/30–31</span></div>
+    <div class="cl-item" onclick="toggleCL(this)"><div class="cl-check"></div><span class="cl-name">最勝院五重塔</span><span class="cl-day">12/30</span></div>
+    <div class="cl-item" onclick="toggleCL(this)"><div class="cl-check"></div><span class="cl-name">弘前蘋果派</span><span class="cl-day">12/30–31</span></div>
+    <div class="cl-item" onclick="toggleCL(this)"><div class="cl-check"></div><span class="cl-name">弘前公園・弘前城</span><span class="cl-day">12/31</span></div>
+    <div class="cl-item" onclick="toggleCL(this)"><div class="cl-check"></div><span class="cl-name">弘前れんが倉庫美術館</span><span class="cl-day">12/31</span></div>
+    <div class="cl-item" onclick="toggleCL(this)"><div class="cl-check"></div><span class="cl-name">廣田神社 初詣</span><span class="cl-day">1/1</span></div>
+    <div class="cl-item" onclick="toggleCL(this)"><div class="cl-check"></div><span class="cl-name">青森縣立美術館</span><span class="cl-day">1/1</span></div>
+    <div class="cl-item" onclick="toggleCL(this)"><div class="cl-check"></div><span class="cl-name">仙台伴手禮採買</span><span class="cl-day">1/2</span></div>
+  </div>
+</div>
+
+<div class="spacer"></div>
+
+<script>
+const dayTexts = [
+  `📅 12/26（六）東京
+✈ 台北 00:10 → 羽田 04:00
+
+04:00 羽田機場降落（Keikyu 線入市區）
+09:00 淺草寺・仲見世通り
+10:30 合羽橋道具街
+12:00 午餐
+13:00 自由活動（秋葉原 / 上野 / 原宿）
+17:30 六本木ヒルズ 聖誕點燈 ✨
+19:30 東京站搭新幹線至仙台
+21:30 仙台牛舌晚餐（推薦：利久、太助）`,
+
+  `📅 12/27（日）仙台 → 鬼首
+早上 仙台早餐
+搭 JR 東北本線 → 古川站（約 30 分鐘）
+10:20 飯店接駁車出發
+抵達後 Check in・午餐
+下午 鬼首滑雪場（半天）⛷️
+晚上 鬼首溫泉 ♨️`,
+
+  `📅 12/28（一）鬼首度假村
+全天 鬼首滑雪場 ⛷️
+中午 雪場餐廳午餐
+傍晚 泡溫泉 ♨️`,
+
+  `📅 12/29（二）鬼首 → 青森 → 弘前
+09:00 接駁車至古川站
+09:45 古川 → 仙台 → 新青森（新幹線，約 2.5 小時）
+12:00 新青森取車
+13:00 青森 A Factory 🍎
+14:00 ワ・ラッセ 睡魔館
+16:00 廣田神社
+17:00 開車至弘前 Check in
+晚上 津輕鄉土料理`,
+
+  `📅 12/30（三）弘前
+上午–下午 春天滑雪場 ⛷️
+傍晚 最勝院五重塔
+仲町傳統建築保存地區散步
+弘前蘋果派 🍎（推薦：きむらや）
+晚上 弘前市區晚餐`,
+
+  `📅 12/31（四）弘前・跨年
+上午 春天滑雪場（半天）⛷️
+13:00 弘前公園・弘前城（雪景）
+14:30 弘前れんが倉庫美術館
+16:30 藤田記念庭園
+晚上 跨年活動（公園點燈 / 除夕撞鐘）🎆`,
+
+  `📅 1/1（五）弘前 → 青森 → 仙台
+⚠️ 元旦：出發前確認美術館是否開放
+
+早上 弘前公園晨間散步
+廣田神社 初詣 🙏
+青森縣立美術館（確認元旦是否開）
+青森 A Factory（最後採買）
+傍晚 新青森還車 → 新幹線至仙台
+晚上 仙台牛舌晚餐`,
+
+  `📅 1/2（六）仙台 → 台北
+早上 仙台採購（仙台朝市・S-PAL・藤崎）
+必買：萩の月・ずんだ餅・牛舌真空包
+15:00 前往仙台機場 SDJ
+17:25 仙台 → 台北起飛 ✈️`
+];
+
+// Tab switching
+document.querySelectorAll('.day-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.day-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.day-panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.panel).classList.add('active');
+    tab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  });
+});
+
+// Wikipedia image map (id → Japanese Wikipedia title)
+const WIKI_IMG = {
+  'd0-1': '浅草寺',
+  'd0-4': '六本木ヒルズ',
+  'd0-6': '牛タン',
+  'd1-3': '鬼首スキー場',
+  'd1-4': '鬼首温泉',
+  'd2-0': '鬼首スキー場',
+  'd3-3': 'A-FACTORY',
+  'd3-4': 'ねぶたの家ワ・ラッセ',
+  'd3-5': '広田神社_(青森市)',
+  'd4-1': '最勝院_(弘前市)',
+  'd4-2': '仲町伝統的建造物群保存地区_(弘前市)',
+  'd5-1': '弘前城',
+  'd5-2': '弘前れんが倉庫美術館',
+  'd5-3': '藤田記念庭園_(弘前市)',
+  'd6-0': '弘前城',
+  'd6-1': '広田神社_(青森市)',
+  'd6-2': '青森県立美術館',
+};
+
+async function loadCardImage(cardId) {
+  const title = WIKI_IMG[cardId];
+  if (!title) return;
+  const card = document.querySelector(`[onclick="toggleCard(this,'${cardId}')"]`);
+  if (!card) return;
+  const body = card.querySelector('.tl-card-body');
+  if (!body || body.dataset.imgLoaded) return;
+  body.dataset.imgLoaded = '1';
+
+  const imgDiv = document.createElement('div');
+  imgDiv.className = 'tl-card-img';
+  imgDiv.innerHTML = '<div class="tl-img-ph">🔍</div>';
+  body.insertBefore(imgDiv, body.firstChild);
+
+  try {
+    const res = await fetch(
+      `https://ja.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`
+    );
+    if (!res.ok) throw new Error();
+    const d = await res.json();
+    if (d.thumbnail && d.thumbnail.source) {
+      const src = d.thumbnail.source.replace(/\/\d+px-/, '/640px-');
+      const caption = d.displaytitle || title;
+      imgDiv.innerHTML =
+        `<img src="${src}" alt="${caption}" onload="this.classList.add('loaded')" onerror="this.closest('.tl-card-img').remove()">` +
+        `<div class="tl-img-caption">© Wikipedia · ${caption.replace(/<[^>]+>/g,'')}</div>`;
+    } else {
+      imgDiv.remove();
+    }
+  } catch {
+    imgDiv.remove();
+  }
+}
+
+// Toggle card expand
+function toggleCard(card, id) {
+  card.classList.toggle('expanded');
+  if (card.classList.contains('expanded')) loadCardImage(id);
+}
+
+// Toggle check
+function toggleCheck(e, id) {
+  e.stopPropagation();
+  const check = document.getElementById('check-' + id);
+  const dot = document.getElementById('dot-' + id);
+  check.classList.toggle('done');
+  if (dot) dot.classList.toggle('checked');
+  updateProgress();
+}
+
+// Copy day
+function copyDay(idx) {
+  const label = document.getElementById('copy-d' + idx);
+  navigator.clipboard.writeText(dayTexts[idx]).then(() => {
+    label.textContent = '✅ 已複製！';
+    setTimeout(() => label.textContent = '📋 複製行程', 2000);
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = dayTexts[idx];
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    label.textContent = '✅ 已複製！';
+    setTimeout(() => label.textContent = '📋 複製行程', 2000);
+  });
+}
+
+// Checklist
+function toggleChecklist() {
+  document.getElementById('clItems').classList.toggle('open');
+}
+
+function toggleCL(item) {
+  const check = item.querySelector('.cl-check');
+  const name = item.querySelector('.cl-name');
+  check.classList.toggle('done');
+  name.classList.toggle('done');
+  updateProgress();
+}
+
+function updateProgress() {
+  const total = document.querySelectorAll('.cl-item').length;
+  const done = document.querySelectorAll('.cl-check.done').length;
+  document.getElementById('clProgress').textContent = done + ' / ' + total + ' 完成';
+  document.getElementById('progressFill').style.width = (done / total * 100) + '%';
+}
+
+// Load saved state
+const saved = JSON.parse(localStorage.getItem('trip-2627') || '{}');
+if (saved.checks) {
+  saved.checks.forEach(id => {
+    const el = document.getElementById('check-' + id);
+    if (el) { el.classList.add('done'); }
+    const dot = document.getElementById('dot-' + id);
+    if (dot) dot.classList.add('checked');
+  });
+}
+if (saved.clDone) {
+  const items = document.querySelectorAll('.cl-item');
+  saved.clDone.forEach(i => {
+    if (items[i]) {
+      items[i].querySelector('.cl-check').classList.add('done');
+      items[i].querySelector('.cl-name').classList.add('done');
+    }
+  });
+}
+updateProgress();
+
+// Save state periodically
+setInterval(() => {
+  const checks = [...document.querySelectorAll('[id^="check-"].done')].map(el => el.id.replace('check-', ''));
+  const clDone = [...document.querySelectorAll('.cl-item')].map((el, i) => el.querySelector('.cl-check.done') ? i : -1).filter(i => i >= 0);
+  localStorage.setItem('trip-2627', JSON.stringify({ checks, clDone }));
+}, 2000);
+</script>
+
+</body>
+</html>
