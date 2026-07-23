@@ -1483,26 +1483,25 @@ const MY_PHOTOS = {
 };
 // ============================================================
 
-// Each entry: string = Japanese Wikipedia title,
-// or array of [lang, title] pairs tried in order
+// 景點 → Wikipedia 文章對應（優先英文，主圖由維基編輯精選）
 const WIKI_IMG = {
-  'd0-1': [['ja','浅草寺'],        ['en','Senso-ji']],
-  'd0-4': [['ja','六本木ヒルズ'],   ['en','Roppongi Hills']],
-  'd0-6': [['ja','仙台閣'],         ['en','Sendai']],
-  'd1-3': [['ja','鳴子温泉郷'],     ['en','Naruko Onsen']],
-  'd1-4': [['ja','鳴子温泉郷'],     ['en','Naruko Onsen']],
-  'd2-0': [['ja','鳴子温泉郷'],     ['en','Naruko Onsen']],
-  'd3-3': [['ja','青森市'],         ['en','Aomori']],
-  'd3-4': [['ja','青森ねぶた祭'],   ['en','Nebuta Festival']],
-  'd3-5': [['ja','青森市'],         ['en','Aomori']],
-  'd4-1': [['ja','最勝院'],         ['en','Hirosaki']],
-  'd4-2': [['ja','弘前市'],         ['en','Hirosaki']],
-  'd5-1': [['ja','弘前城'],         ['en','Hirosaki Castle']],
-  'd5-2': [['ja','弘前市'],         ['en','Hirosaki']],
-  'd5-3': [['ja','弘前公園'],       ['en','Hirosaki Castle']],
-  'd6-0': [['ja','弘前城'],         ['en','Hirosaki Castle']],
-  'd6-1': [['ja','青森市'],         ['en','Aomori']],
-  'd6-2': [['ja','青森県立美術館'], ['en','Aomori Museum of Art']],
+  'd0-1': [['en','Senso-ji']],
+  'd0-4': [['en','Roppongi Hills']],
+  'd0-6': [['en','Sendai']],
+  'd1-3': [['en','Onsen']],
+  'd1-4': [['en','Onsen']],
+  'd2-0': [['en','Onsen']],
+  'd3-3': [['en','Aomori']],
+  'd3-4': [['en','Nebuta Festival'], ['en','Nebuta']],
+  'd3-5': [['en','Aomori Prefecture']],
+  'd4-1': [['en','Hirosaki']],
+  'd4-2': [['en','Hirosaki']],
+  'd5-1': [['en','Hirosaki Castle']],
+  'd5-2': [['en','Hirosaki']],
+  'd5-3': [['en','Japanese garden']],
+  'd6-0': [['en','Hirosaki Castle']],
+  'd6-1': [['en','Aomori Prefecture']],
+  'd6-2': [['en','Aomori Museum of Art']],
 };
 
 async function fetchWikiThumb(lang, title) {
@@ -1511,15 +1510,18 @@ async function fetchWikiThumb(lang, title) {
     `&prop=pageimages&piprop=thumbnail&pithumbsize=640` +
     `&format=json&origin=*`;
   const res = await fetch(url);
-  if (!res.ok) throw new Error('http ' + res.status);
+  if (!res.ok) throw new Error('HTTP ' + res.status);
   const d = await res.json();
   const pages = d.query && d.query.pages;
   if (!pages) throw new Error('no pages');
   const pageId = Object.keys(pages)[0];
-  if (pageId === '-1') throw new Error('not found');
+  if (pageId === '-1') throw new Error('article not found: ' + title);
   const page = pages[pageId];
-  if (page && page.thumbnail && page.thumbnail.source) return page.thumbnail.source;
-  throw new Error('no thumbnail');
+  if (page && page.thumbnail && page.thumbnail.source) {
+    console.log('[photo ok]', title, page.thumbnail.source);
+    return page.thumbnail.source;
+  }
+  throw new Error('no thumbnail: ' + title);
 }
 
 async function loadCardImage(cardId) {
@@ -1550,7 +1552,8 @@ async function loadCardImage(cardId) {
     // 備用：從 Wikipedia 抓
     const attempts = typeof entry === 'string' ? [['ja', entry]] : entry;
     for (const [lang, title] of attempts) {
-      try { src = await fetchWikiThumb(lang, title); captionText = `© Wikipedia · ${title.replace(/_/g,' ')}`; break; } catch {}
+      try { src = await fetchWikiThumb(lang, title); captionText = `© Wikipedia · ${title.replace(/_/g,' ')}`; break; }
+      catch(e) { console.warn('[photo fail]', cardId, lang, title, e.message); }
     }
   }
 
