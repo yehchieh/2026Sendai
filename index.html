@@ -1462,29 +1462,64 @@ document.querySelectorAll('.day-tab').forEach(tab => {
 });
 
 // Wikipedia image map (id → Japanese Wikipedia title)
+// ============================================================
+// 📷 自訂照片區 — 把你自己的照片放在這裡
+// 用法：把照片上傳到 GitHub repo 的 images/ 資料夾
+//       然後在下面填入對應景點的檔名
+//       沒填的景點會自動用 Wikipedia 照片
+// ============================================================
+const MY_PHOTOS = {
+  // 'd0-1': './images/asakusa.jpg',       // 淺草寺
+  // 'd0-4': './images/roppongi.jpg',      // 六本木點燈
+  // 'd0-6': './images/gyutan.jpg',        // 仙台牛舌
+  // 'd1-3': './images/onigashira-ski.jpg',// 鬼首滑雪場
+  // 'd3-3': './images/afactory.jpg',      // 青森 A Factory
+  // 'd3-4': './images/warasse.jpg',       // 睡魔館
+  // 'd4-1': './images/saisho-in.jpg',     // 最勝院五重塔
+  // 'd5-1': './images/hirosaki-castle.jpg',// 弘前城
+  // 'd5-2': './images/renga-museum.jpg',  // れんが倉庫美術館
+  // 'd6-1': './images/hirota-shrine.jpg', // 廣田神社
+  // 'd6-2': './images/aomori-museum.jpg', // 青森縣立美術館
+};
+// ============================================================
+
+// Each entry: string = Japanese Wikipedia title,
+// or array of [lang, title] pairs tried in order
 const WIKI_IMG = {
-  'd0-1': '浅草寺',
-  'd0-4': '六本木ヒルズ',
-  'd0-6': '牛タン',
-  'd1-3': '鬼首スキー場',
-  'd1-4': '鬼首温泉',
-  'd2-0': '鬼首スキー場',
-  'd3-3': 'A-FACTORY',
-  'd3-4': 'ねぶたの家ワ・ラッセ',
-  'd3-5': '広田神社_(青森市)',
-  'd4-1': '最勝院_(弘前市)',
-  'd4-2': '仲町伝統的建造物群保存地区_(弘前市)',
-  'd5-1': '弘前城',
-  'd5-2': '弘前れんが倉庫美術館',
-  'd5-3': '藤田記念庭園_(弘前市)',
-  'd6-0': '弘前城',
-  'd6-1': '広田神社_(青森市)',
-  'd6-2': '青森県立美術館',
+  'd0-1': [['ja','浅草寺'],        ['en','Sensō-ji']],
+  'd0-4': [['ja','六本木ヒルズ'],   ['en','Roppongi Hills']],
+  'd0-6': [['ja','牛タン'],         ['en','Gyūtan']],
+  'd1-3': [['ja','鬼首スキー場'],   ['en','Naruko-Onsenkyo']],
+  'd1-4': [['ja','鬼首温泉'],       ['en','Naruko Onsen']],
+  'd2-0': [['ja','鬼首スキー場'],   ['en','Naruko-Onsenkyo']],
+  'd3-3': [['ja','A-FACTORY'],      ['en','A-Factory, Aomori']],
+  'd3-4': [['ja','ねぶたの家ワ・ラッセ'], ['en','Warasse']],
+  'd3-5': [['ja','広田神社_(青森市)'], ['en','Hirota Shrine']],
+  'd4-1': [['ja','最勝院_(弘前市)'],  ['en','Saisho-in']],
+  'd4-2': [['ja','仲町伝統的建造物群保存地区_(弘前市)'], ['en','Hirosaki']],
+  'd5-1': [['ja','弘前城'],          ['en','Hirosaki Castle']],
+  'd5-2': [['ja','弘前れんが倉庫美術館'], ['en','Hirosaki Museum of Contemporary Art']],
+  'd5-3': [['ja','藤田記念庭園_(弘前市)'], ['en','Fujita Memorial Japanese Garden']],
+  'd6-0': [['ja','弘前城'],          ['en','Hirosaki Castle']],
+  'd6-1': [['ja','広田神社_(青森市)'], ['en','Hirota Shrine']],
+  'd6-2': [['ja','青森県立美術館'],   ['en','Aomori Museum of Art']],
 };
 
+async function fetchWikiThumb(lang, title) {
+  const url = `https://${lang}.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(title)}&prop=pageimages&format=json&pithumbsize=640&origin=*`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error();
+  const d = await res.json();
+  const pages = d.query && d.query.pages;
+  if (!pages) throw new Error();
+  const page = pages[Object.keys(pages)[0]];
+  if (page && page.thumbnail && page.thumbnail.source) return page.thumbnail.source;
+  throw new Error('no thumb');
+}
+
 async function loadCardImage(cardId) {
-  const title = WIKI_IMG[cardId];
-  if (!title) return;
+  const entry = WIKI_IMG[cardId];
+  if (!entry) return;
   const card = document.querySelector(`[onclick="toggleCard(this,'${cardId}')"]`);
   if (!card) return;
   const body = card.querySelector('.tl-card-body');
@@ -1499,33 +1534,37 @@ async function loadCardImage(cardId) {
   imgDiv.appendChild(ph);
   body.insertBefore(imgDiv, body.firstChild);
 
-  try {
-    const res = await fetch(
-      `https://ja.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`
-    );
-    if (!res.ok) throw new Error('fetch failed');
-    const d = await res.json();
-    if (d.thumbnail && d.thumbnail.source) {
-      const src = d.thumbnail.source.replace(/\/\d+px-/, '/640px-');
+  let src = null;
+  let captionText = '';
 
-      const img = document.createElement('img');
-      img.src = src;
-      img.alt = title;
-      img.onload = () => img.classList.add('loaded');
-      img.onerror = () => imgDiv.remove();
-
-      const caption = document.createElement('div');
-      caption.className = 'tl-img-caption';
-      caption.textContent = `© Wikipedia · ${title.replace(/_/g, ' ')}`;
-
-      imgDiv.innerHTML = '';
-      imgDiv.appendChild(img);
-      imgDiv.appendChild(caption);
-    } else {
-      imgDiv.remove();
+  // 優先用自訂照片
+  if (MY_PHOTOS[cardId]) {
+    src = MY_PHOTOS[cardId];
+    captionText = '';  // 自己的照片不加版權說明
+  } else {
+    // 備用：從 Wikipedia 抓
+    const attempts = typeof entry === 'string' ? [['ja', entry]] : entry;
+    for (const [lang, title] of attempts) {
+      try { src = await fetchWikiThumb(lang, title); captionText = `© Wikipedia · ${title.replace(/_/g,' ')}`; break; } catch {}
     }
-  } catch {
-    imgDiv.remove();
+  }
+
+  if (!src) { imgDiv.remove(); return; }
+
+  const img = document.createElement('img');
+  img.src = src;
+  img.alt = '';
+  img.onload = () => img.classList.add('loaded');
+  img.onerror = () => imgDiv.remove();
+
+  imgDiv.innerHTML = '';
+  imgDiv.appendChild(img);
+
+  if (captionText) {
+    const caption = document.createElement('div');
+    caption.className = 'tl-img-caption';
+    caption.textContent = captionText;
+    imgDiv.appendChild(caption);
   }
 }
 
