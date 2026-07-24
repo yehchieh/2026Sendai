@@ -425,6 +425,24 @@
   .tl-card-img img.loaded { opacity: 1; }
   .tl-img-ph { width: 100%; height: 170px; display: flex; align-items: center; justify-content: center; font-size: 32px; color: var(--text2); background: var(--bg); }
   .tl-img-caption { font-size: 10px; color: var(--text2); text-align: right; padding: 3px 6px; background: rgba(0,0,0,0.03); }
+
+  /* 機票資訊 */
+  .flight-info { margin-top: 10px; }
+  .flight-route {
+    background: var(--transport-bg); border-radius: 8px;
+    padding: 8px 12px; margin-bottom: 8px; font-size: 13px;
+  }
+  .flight-route strong { color: var(--transport); }
+  .flight-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 4px; }
+  .flight-table th {
+    background: #f3f4f6; color: var(--text2);
+    padding: 5px 8px; text-align: left; font-size: 11px; font-weight: 600;
+  }
+  .flight-table td { padding: 7px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .flight-table tr:last-child td { border-bottom: none; }
+  .flight-person { font-weight: 600; color: var(--text); }
+  .flight-order { font-size: 11px; color: var(--accent); font-weight: 600; letter-spacing: 0.5px; }
+  .flight-tbd { color: var(--text2); font-style: italic; font-size: 11px; }
 </style>
 </head>
 <body>
@@ -472,7 +490,21 @@
           <div class="tl-arrow">▾</div>
         </div>
         <div class="tl-card-body">
-          <p>搭 <strong>Keikyu 線</strong>（京急線）可直達品川、新橋、淺草方向。班次頻繁，約 40 分鐘入市區。</p>
+          <div class="flight-info">
+            <div class="flight-route">
+              ✈️ <strong>台灣虎航 IT216</strong>　TPE T1 → HND T3　12/26 00:10 → 04:00
+            </div>
+            <table class="flight-table">
+              <thead><tr><th>旅客</th><th>訂位代號</th></tr></thead>
+              <tbody>
+                <tr><td class="flight-person">CHIEH</td><td class="flight-tbd">待確認</td></tr>
+                <tr><td class="flight-person">JP</td><td class="flight-order">GEDIRE（IT216）</td></tr>
+                <tr><td class="flight-person">頤頤</td><td class="flight-tbd">待確認</td></tr>
+                <tr><td class="flight-person">TZE</td><td class="flight-tbd">待確認</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p style="margin-top:10px;">搭 <strong>Keikyu 線</strong>（京急線）可直達品川、新橋、淺草方向。班次頻繁，約 40 分鐘入市區。</p>
           <div class="tl-card-tip">💡 機場第一航廈有 24 小時咖啡廳，可在這裡等到早上 7-8 點再出發，省一晚住宿費。</div>
         </div>
       </div>
